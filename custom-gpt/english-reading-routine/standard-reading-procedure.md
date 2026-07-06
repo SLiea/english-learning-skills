@@ -83,6 +83,8 @@ Vocabulary objects may be nested inside expression, grammar pattern, or sentence
 
 Expression and grammar pattern objects are on the same level. Their marked ranges may overlap, cross, or contain each other. They may also be nested inside sentence / paragraph objects.
 
+Nested marked objects are still independent selected objects. They deserve independent explanatory entries.
+
 Explain objects according to the order in which their markup begins in the text. This order is also the output numbering order.
 
 #### 3.2 Standard Explanation Output
