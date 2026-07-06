@@ -25,10 +25,12 @@ Translate the full reading material and output it to a Markdown file.
 Name the file using the following format:
 
 ```text
-reading-<hour>-<day>-<month>-<year>.md
+reading-hh-dd-mm-yy.md
 ```
 
 Use the current local time when filling the file name.
+
+Example: reading-08-21-06-26.md
 
 The file should contain the full reading material and its Chinese reference translation in paragraph pairs:
 
@@ -44,15 +46,101 @@ The file should contain the full reading material and its Chinese reference tran
 
 Do not add extra headings, notes, summaries, or explanatory text to the translation file.
 
+Never use pypandoc to generate `.md` files. Write the Markdown text directly with `Path.write_text()` so formatting is preserved exactly.
+
 After creating the reference translation file, stop and wait for the user's next instruction.
 
 ### 3. Explain User-Selected Language Points
 
-When the user manually provides vocabulary, expressions, grammar points, or other language objects from the reading material, explain them according to the user's request.
+When the user provides vocabulary, expressions, grammar points, or other language objects from the reading material, explain them according to the user's request.
 
-If the user gives no specific explanation requirement, provide a brief contextual explanation of meaning and usage.
+#### 3.1 Selected Object Markup Rules
 
-#### 3.1 Format User-Selected Objects as Memory Entries
+In Step 3, the user selects explanation objects with Markdown-style markup. Each marker defines the object type.
+
+Use these markers:
+
+```text
+**...**  = vocabulary
+<...>    = expression
+`...`    = grammar pattern
+[...]    = sentence / paragraph
+{...}    = User-defined prompt
+```
+
+Selection rules:
+```text
+- **...**: explain the marked word as a vocabulary object.
+- <...>: use the marked span as the search range; exactly one expression object is expected to be extracted from it and explained.
+- `...`: use the marked span as the search range; exactly one grammar pattern object is expected to be extracted from it and explained.
+- [...]: explain the marked span as a sentence or paragraph object.
+- {...}: A user-defined prompt appears only directly after other markers. Its content represents the user's custom notes or prompts for that object. user-defined prompt shouldn't be treated as an independent object. Don't address it like a object.
+```
+
+Object hierarchy: vocabulary < expression = grammar pattern < sentence / paragraph
+
+Vocabulary objects may be nested inside expression, grammar pattern, or sentence / paragraph objects.
+
+Expression and grammar pattern objects are on the same level. Their marked ranges may overlap, cross, or contain each other. They may also be nested inside sentence / paragraph objects.
+
+Explain objects according to the order in which their markup begins in the text. This order is also the output numbering order.
+
+#### 3.2 Standard Explanation Output
+
+Vocabulary object output:
+
+```text
+<number>. <Base form of marked word>
+
+**Meaning in context:**
+
+**Examples of this meaning:**
+
+1. <example different from the source context>
+2. <example different from the source context>
+```
+
+Expression object output:
+
+```text
+<number>. <extracted expression object>
+
+**Meaning in context:**
+
+**Examples of this meaning:**
+
+1. <example different from the source context>
+2. <example different from the source context>
+```
+
+Grammar pattern object output:
+
+```text
+<number>. <Abstract format of Grammar pattern>
+
+**Meaning / function in context:**
+
+**General meaning / function:**
+
+**Examples of the same pattern:**
+
+1. <example different from the source context>
+2. <example different from the source context>
+```
+
+Sentence / paragraph object output:
+
+```text
+<number>. <selected sentence / paragraph>
+
+**Further detailed translation in context:**
+```
+
+A user-defined prompt `{...}` appears only directly after another marker. It is not an independent explanation object.
+
+First complete the default standard explanation output for the selected object, taking the user-defined prompt into account. Only if the `Standard Explanation Output` is insufficient for the user-defined prompt, add extra content without format requirements after the default explanation to answer the prompt.
+
+#### 3.3 Format User-Selected Objects as Memory Entries
 
 If the user asks to construct memory entries for specific vocabulary, expressions, grammar points, sentences, paragraphs, or other selected objects, the user request should indicate, explicitly or implicitly:
 
@@ -62,7 +150,3 @@ If the user asks to construct memory entries for specific vocabulary, expression
 If the target entry format is unclear and affects the entry structure, ask the user for clarification before producing final memory entries.
 
 After producing the requested memory entries, stop and wait for the user's next instruction.
-
-### 4. Interpret User-Selected Sentences or Paragraphs
-
-When the user points to a sentence, paragraph, or part of the reading material and asks about its meaning, structure, implication, or role in context, provide a contextual interpretation based on the reading material.
