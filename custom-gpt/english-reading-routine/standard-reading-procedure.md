@@ -92,7 +92,7 @@ Explain objects according to the order in which their markup begins in the text.
 Vocabulary object output:
 
 ```text
-<number>. <Base form of marked word>
+<number>. <Base form of marked word> — UK /<UK IPA>/; US /<US IPA>/
 
 **Meaning in context:**
 
