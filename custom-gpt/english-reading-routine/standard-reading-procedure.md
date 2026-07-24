@@ -148,6 +148,4 @@ If the user asks to construct memory entries for specific vocabulary, expression
 
 The user request should indicate, explicitly or implicitly, which objects should be made into memory entries.
 
-If the user also requests an additional output format, treat it as `specified format` and use the corresponding script or format document, such as `anki_formatter.py` and `AnkiFormat.md`.
-
-After producing the requested memory entries and any specified format output, stop and wait for the user's next instruction.
+After the construction work is done, stop and wait for the user's next instruction.
