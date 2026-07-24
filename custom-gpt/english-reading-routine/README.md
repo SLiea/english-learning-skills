@@ -2,7 +2,7 @@
 
 ## Anki Memory Entry Usage
 
-Reading Routine can convert selected memory entries into an Anki import file.
+Reading Routine constructs canonical memory entries first, then uses `anki_formatter.py` to convert them into an Anki import file.
 
 ### One-time setup
 
@@ -37,8 +37,13 @@ Back:
 ### Daily usage
 
 1. Request memory entry construction and specify `Anki` as the output format.
-2. Provide the target deck name if a specific deck is required.
-3. Import the generated `reading-anki-dd-mm-yy.txt` file in Anki Desktop.
-4. For normal additions, ignore duplicate notes to preserve existing learning records.
+2. Generate the Anki import file with `anki_formatter.py`:
+
+```bash
+python anki_formatter.py reading-memory-dd-mm-yy.json reading-anki-dd-mm-yy.txt
+```
+
+3. Import the generated text file in Anki Desktop.
+4. For normal additions, ignore duplicate notes to avoid modifying existing learning records.
 
 New entries are added as new cards and follow the existing deck's scheduling rules.
