@@ -23,7 +23,7 @@ Use the following procedure after the user has invoked this skill.
    * material handling: follow `input-builder.md`;
    * contextual explanation: follow `meaning-explorer.md`;
    * memory entry construction: follow `memory-formatter.md` and `memory-schemas.md`;
-   * Anki import formatting: follow `AnkiFormat.md` and use `anki_formatter.py`.
+   * Anki import formatting: use `anki_formatter.py`.
 
    If the required operation cannot be clearly determined from the user's instruction, make a reasonable guess and ask the user for confirmation before proceeding.
 
