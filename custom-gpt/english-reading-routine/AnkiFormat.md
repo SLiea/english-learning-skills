@@ -16,15 +16,15 @@ Each supported memory entry instance generates one Anki note.
 
 Generate a UTF-8 tab-separated plain text file using the naming format:
 
-```text
+```
 reading-anki-dd-mm-yy.txt
 ```
 
 Use the current date in UTC+8 when filling the file name.
 
-A newly created file begins with:
+Begin the file with:
 
-```text
+```
 #separator:Tab
 #html:true
 #notetype:Reading Memory
@@ -32,7 +32,7 @@ A newly created file begins with:
 #columns:Import Key	Entry Type	Front	Back
 ```
 
-When appending to an existing file, only note rows are appended. Do not add another header or column-name row.
+When appending to an existing file, only note rows are appended.
 
 ## Note Fields
 
@@ -47,7 +47,7 @@ When appending to an existing file, only note rows are appended. Do not add anot
 
 | Supported entry | Import Key | Anki Entry Type | Front | Back |
 |---|---|---|---|---|
-| `vocabulary` | `<Entry Content>::<Source Sentence>` | `vocabulary` | `Entry Content`; `Source Sentence`; `Pronunciation` | `Explanation`; `Optional Translation`; `Source Context`; `Notes` |
+| `vocabulary` | `<Entry Content>::<Source Sentence>` | `vocabulary` | `Entry Content`; `Source Sentence`;`Pronunciation` | `Explanation`; `Optional Translation`; `Source Context`; `Notes` |
 | `expression` | `<Entry Content>::<Source Sentence>` | `expression` | `Entry Content`; `Source Sentence` | `Explanation`; `Optional Translation`; `Source Context`; `Notes` |
 | `sentence` or `paragraph` with `grammar` | `<Grammar>` | `grammar` | `Grammar` | `Custom Note`; `Source` |
 
