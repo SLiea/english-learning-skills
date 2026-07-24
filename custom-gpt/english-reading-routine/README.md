@@ -36,8 +36,8 @@ Back:
 
 ### Daily usage
 
-1. Request memory entry construction and specify `Anki` as the output format.
-2. Generate the Anki import file with `anki_formatter.py`:
+1. Request memory entry construction and provide `anki_formatter.py` as `specified format` when Anki output is needed.
+2. Generate or append the Anki import file with `anki_formatter.py`:
 
 ```bash
 python anki_formatter.py reading-memory-dd-mm-yy.json reading-anki-dd-mm-yy.txt
