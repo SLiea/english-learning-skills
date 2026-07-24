@@ -32,7 +32,7 @@ Begin the file with:
 #columns:Import Key	Entry Type	Front	Back
 ```
 
-When appending to an existing file, only note rows are appended.
+The Anki import file is generated from the memory entries of the same day.
 
 ## Note Fields
 
