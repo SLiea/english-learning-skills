@@ -3,7 +3,6 @@
 import argparse
 import html
 import json
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 DEFAULT_DECK = "TOEFL2026"
@@ -31,54 +30,60 @@ def make_header(deck):
     ])
 
 
-def convert(entry):
-    t = entry.get("Entry Type")
+def load_entries(paths):
+    entries = []
 
-    if t in ("vocabulary", "expression"):
+    for path in paths:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        entries.extend(data)
+
+    return entries
+
+
+def convert(entry):
+    entry_type = entry.get("Entry Type")
+
+    if entry_type in ("vocabulary", "expression"):
         content = clean(entry.get("Entry Content"))
         source = clean(entry.get("Source Sentence"))
-        front_fields = ("Entry Content", "Source Sentence")
-        if t == "vocabulary":
-            front_fields = ("Entry Content", "Source Sentence", "Pronunciation")
-        front = "".join(div(entry.get(f)) for f in front_fields)
-        back = "".join(div(entry.get(f)) for f in ("Explanation", "Optional Translation", "Source Context", "Notes"))
-        return [f"{content}::{source}", t, front, back]
 
-    if t in ("sentence", "paragraph") and "grammar" in entry.get("Value Fields", []):
+        front_fields = ("Entry Content", "Source Sentence")
+        if entry_type == "vocabulary":
+            front_fields = ("Entry Content", "Source Sentence", "Pronunciation")
+
+        front = "".join(div(entry.get(field)) for field in front_fields)
+        back = "".join(div(entry.get(field)) for field in (
+            "Explanation",
+            "Optional Translation",
+            "Source Context",
+            "Notes",
+        ))
+
+        return [f"{content}::{source}", entry_type, front, back]
+
+    if entry_type in ("sentence", "paragraph") and "grammar" in entry.get("Value Fields", []):
         grammar = clean(entry.get("Grammar"))
-        return [grammar, "grammar", grammar, "".join(div(entry.get(f)) for f in ("Custom Note", "Source"))]
+        back = "".join(div(entry.get(field)) for field in ("Custom Note", "Source"))
+        return [grammar, "grammar", grammar, back]
 
     return None
 
 
-def convert_entries(entries):
-    return [row for entry in entries if (row := convert(entry))]
-
-
-def create_file(path, deck):
-    path.write_text(make_header(deck), encoding="utf-8")
-
-
-def append_file(path, deck, rows):
-    if not path.exists():
-        create_file(path, deck)
-    elif not path.read_text(encoding="utf-8").startswith(make_header(deck)):
-        raise ValueError("Unexpected Anki file header")
-
-    with path.open("a", encoding="utf-8") as f:
-        for row in rows:
-            f.write("\t".join(clean(x) for x in row) + "\n")
-
-
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_json", type=Path)
-    parser.add_argument("output", type=Path)
+    parser.add_argument("input_json", nargs="+", type=Path)
+    parser.add_argument("-o", "--output", required=True, type=Path)
     parser.add_argument("--deck", default=DEFAULT_DECK)
     args = parser.parse_args()
 
-    entries = json.loads(args.input_json.read_text(encoding="utf-8"))
-    append_file(args.output, args.deck, convert_entries(entries))
+    entries = load_entries(args.input_json)
+    rows = [row for entry in entries if (row := convert(entry))]
+
+    with args.output.open("w", encoding="utf-8") as file:
+        file.write(make_header(args.deck))
+
+        for row in rows:
+            file.write("\t".join(clean(value) for value in row) + "\n")
 
 
 if __name__ == "__main__":

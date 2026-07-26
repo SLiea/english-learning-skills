@@ -144,7 +144,7 @@ First complete the default standard explanation output for the selected object, 
 
 #### 3.3 Construct User-Selected Objects as Memory Entries
 
-If the user asks to construct memory entries for specific vocabulary, expressions, grammar points, sentences, paragraphs, or other selected objects, follow `memory-formatter.md` and `memory-schemas.md`.
+If the user asks to construct memory entries for specific vocabulary, expressions, grammar points, sentences, paragraphs, or other selected objects, follow `memory-formatter.md`.
 
 The user request should indicate, explicitly or implicitly, which objects should be made into memory entries.
 
