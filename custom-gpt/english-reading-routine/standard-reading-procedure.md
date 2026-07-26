@@ -6,19 +6,42 @@ This document defines the standard reading training procedure for `english-readi
 
 Use this procedure when the user explicitly asks for the standard reading training procedure or asks to start reading training in a way that clearly implies the standard procedure.
 
+## Procedure Mods
+
+#### TOEFL Problem-Solving Mod
+
+Use this Mod when the user asks, as part of the standard reading procedure, to address TOEFL reading test questions.
+
+Use general reading comprehension and reasoning abilities to complete the requested task. Follow the task's own instructions and preserve the answer form required by the task.
+
+Default output:
+
+```text
+**Answer:**
+
+**Explanation:**
+
+```
+
+If multiple answers and their explanations have high logical or positional relevance, and the explanations are relatively brief, consider consolidating multiple answers into a single block to increase information density to avoid excessive vertical length in the overall response.
+
+The explanation may use another structure or include additional analysis when useful for the task or requested by the user.
+
 ## Procedure
 
 ### 1. Recognize the Reading Material
 
 Identify the reading material provided by the user.
 
-Proceed only when the user has provided complete reading material that the agent can directly process as text or as generally readable input.
+Proceed only when the user has provided complete reading material that the agent can directly process as text or as readable image input.
 
 If the user has not provided complete reading material, ask the user to provide the reading material before continuing the standard reading procedure.
 
 If the user provides multiple materials, ask the user which material should be used first unless the intended material is clear.
 
 ### 2. Create a Reference Translation
+
+If the user requests any Mod, handle it first. A Mod may be invoked through a natural-language request and does not need to be named explicitly.
 
 Translate the full reading material and output it to a Markdown file.
 
@@ -69,6 +92,7 @@ Use these markers:
 ```
 
 Selection rules:
+
 ```text
 - **...**: explain the marked word as a vocabulary object.
 - <...>: use the marked span as the search range; exactly one expression object is expected to be extracted from it and explained.
