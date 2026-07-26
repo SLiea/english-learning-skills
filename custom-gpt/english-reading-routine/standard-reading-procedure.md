@@ -142,13 +142,10 @@ A user-defined prompt `{...}` appears only directly after another marker. It is 
 
 First complete the default standard explanation output for the selected object, taking the user-defined prompt into account. Only if the `Standard Explanation Output` is insufficient for the user-defined prompt, add extra content without format requirements after the default explanation to answer the prompt.
 
-#### 3.3 Format User-Selected Objects as Memory Entries
+#### 3.3 Construct User-Selected Objects as Memory Entries
 
-If the user asks to construct memory entries for specific vocabulary, expressions, grammar points, sentences, paragraphs, or other selected objects, the user request should indicate, explicitly or implicitly:
+If the user asks to construct memory entries for specific vocabulary, expressions, grammar points, sentences, paragraphs, or other selected objects, follow `memory-formatter.md`.
 
-- which objects should be made into memory entries;
-- which entry format should be used.
+The user request should indicate, explicitly or implicitly, which objects should be made into memory entries.
 
-If the target entry format is unclear and affects the entry structure, ask the user for clarification before producing final memory entries.
-
-After producing the requested memory entries, stop and wait for the user's next instruction.
+After the construction work is done, stop and wait for the user's next instruction.

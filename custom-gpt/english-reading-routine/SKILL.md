@@ -22,12 +22,11 @@ Use the following procedure after the user has invoked this skill.
 
    * material handling: follow `input-builder.md`;
    * contextual explanation: follow `meaning-explorer.md`;
-   * language point extraction: follow `memory-formatter.md`;
-   * memory entry formatting: follow `memory-schemas.md`.
-
-   If the required operation cannot be clearly determined from the user's instruction, make a reasonable guess and ask the user for confirmation before proceeding.
-
-   Use only the operations needed for the user's request.
+   * memory construction and export: follow `memory-formatter.md`
+   
+If the required operation cannot be clearly determined from the user's instruction, make a reasonable guess and ask the user for confirmation before proceeding.
+   
+Use only the operations needed for the user's request.
 
 ## Output Principles
 
