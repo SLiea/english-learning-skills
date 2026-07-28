@@ -127,44 +127,29 @@ Action operation：
 readingMemoryStorage
 ```
 
-Action 只接受 `store` operation。请求结构如下：
+PowerShell test:
 
-```json
-{
-  "operation": "store",
-  "entries": [
-    {
-      "Entry Type": "vocabulary",
-      "Entry Content": "example",
-      "Source Sentence": "This is an example.",
-      "Pronunciation": "UK /ɪɡˈzɑːm.pəl/; US /ɪɡˈzæm.pəl/",
-      "Source Context": "",
-      "Explanation": "Something used to illustrate an idea.",
-      "Optional Translation": "例子",
-      "Notes": ""
-    }
-  ]
-}
+```powershell
+$Url = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"
+
+$Body = @(
+  @{
+      "Entry Type" = "vocabulary"
+      "Entry Content" = "example"
+      "Source Sentence" = "This is an example."
+      "Pronunciation" = "UK /ɪɡˈzɑːm.pəl/; US /ɪɡˈzæm.pəl/"
+      "Source Context" = ""
+      "Explanation" = "Something used to illustrate an idea."
+      "Optional Translation" = "例子"
+      "Notes" = ""
+  }
+) | ConvertTo-Json -Depth 6
+
+Invoke-RestMethod `
+  -Uri $Url `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $Body
 ```
 
-Action 不接收文件名、文件路径或序列化后的文件内容。GPT 只发送 canonical memory entries，文件命名、JSON 序列化、同小时合并和 Anki 重建均由后端处理。
-
-成功时，Action 返回当前 memory 文件和当天 Anki 文件的信息：
-
-```json
-{
-  "storedEntries": 1,
-  "saved": [
-    {
-      "filename": "reading-memory-13-29-07-26.json",
-      "url": "https://drive.google.com/..."
-    },
-    {
-      "filename": "reading-anki-29-07-26.txt",
-      "url": "https://drive.google.com/..."
-    }
-  ]
-}
-```
-
-如果将 GPT 设置为公开 GPT，需要在 Action 配置中提供 Privacy Policy URL。
+A successful response should contain the stored memory file and rebuilt Anki file:
