@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Reading Memory Storage
+  version: 0.1.0
+servers:
+  - url: 《》
+
+paths:
+  /exec:
+    post:
+      operationId: readingMemoryStorage
+      summary: Store reading memory entries and rebuild the daily Anki file.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - operation
+                - entries
+              properties:
+                operation:
+                  type: string
+                  enum:
+                    - store
+                entries:
+                  type: array
+                  description: Canonical reading memory entries.
+                  minItems: 1
+                  items:
+                    type: object
+                    additionalProperties: true
+      responses:
+        "200":
+          description: Storage result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  storedEntries:
+                    type: integer
+                  saved:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        filename:
+                          type: string
+                        url:
+                          type: string
+                  error:
+                    type: string

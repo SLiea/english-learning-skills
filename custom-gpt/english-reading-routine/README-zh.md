@@ -10,17 +10,15 @@
 standard-reading-procedure.md
 memory-formatter.md
 memory-schemas.md
-AnkiFormat.md
-anki_formatter.py
 ```
 
-启用 Data Analysis，以便 GPT 在 sandbox 中执行 `anki_formatter.py`。
-
-配置 GPT Action：`readingMemoryStorage`，用于 persistent memory storage。
+配置 GPT Action：`readingMemoryStorage`，用于 persistent memory storage 和 Anki 文件生成。
 
 ## Anki Memory Entry 使用
 
-Reading Routine 先生成 canonical memory entries，再使用 `anki_formatter.py` 根据当天所有 memory entries 生成 Anki 导入文件。
+Reading Routine 根据 `memory-schemas.md` 构造 canonical memory entries。
+
+GPT 将构造好的 entries 发送给 `readingMemoryStorage` Action。后端负责将 entries 保存为 reading memory 文件，并根据当天的全部 memory entries 重建 Anki 导入文件。
 
 ### Anki 一次性配置
 
@@ -59,12 +57,15 @@ Back:
 
 ### 日常流程
 
-1. 请求 memory entry construction，并请求 Anki output。
-2. GPT 从 persistent storage 拉取当天已有 memory 文件。
-3. GPT 创建当前请求对应的 `reading-memory-hh-dd-mm-yy.json`。
-4. GPT 使用 sandbox 中当天所有 memory 文件重新生成 `reading-anki-dd-mm-yy.txt`。
-5. GPT 将生成文件通过 Action 推送回 persistent storage。
+1. 请求 memory entry construction。
+2. GPT 根据 `memory-schemas.md` 构造 canonical memory entries。
+3. GPT 将 entries 发送给 `readingMemoryStorage` Action。
+4. 后端保存或更新当前小时的 `reading-memory-hh-dd-mm-yy.json`。
+5. 后端读取当天全部 reading memory entries，并重建 `reading-anki-dd-mm-yy.txt`。
 6. 将生成的 `reading-anki-dd-mm-yy.txt` 导入 Anki Desktop。
+7. 正常新增时，在 Anki 导入设置中忽略重复 notes，避免修改已有学习记录。
+
+新 entries 将作为新 cards 加入，并遵循现有 deck 的调度规则。
 
 ## Persistent Memory Storage 配置
 
@@ -78,7 +79,6 @@ Back:
 <ROOT_FOLDER_ID>/
   sources/
   anki/
-  outputs/
 ```
 
 文件分类：
@@ -86,8 +86,11 @@ Back:
 ```text
 sources/reading-memory-hh-dd-mm-yy.json
 anki/reading-anki-dd-mm-yy.txt
-outputs/<other generated files>
 ```
+
+后端使用 UTC+8 时间。
+
+同一小时内提交的 entries 会合并到同一个 memory 文件中。每次成功执行 store operation 后，后端都会根据当天全部 memory 文件重新生成 Anki 文件。
 
 ### Google Apps Script
 
@@ -98,9 +101,9 @@ Execute as: Me
 Who has access: Anyone
 ```
 
-将 `ROOT_FOLDER_ID` 替换为目标 Drive 文件夹 ID。
+使用`Code.gs`
 
-最终代码见 `README.md`。
+将 `ROOT_FOLDER_ID` 替换为目标 Drive 文件夹 ID。
 
 部署完成后，直接访问 Web App URL 应返回：
 
@@ -110,38 +113,55 @@ Who has access: Anyone
 
 ### GPT Action
 
+使用`OpenAISchema.txt`
+
 认证方式：
 
 ```text
 None
 ```
 
-Action 使用单一 operation：
+Action operation：
 
 ```text
 readingMemoryStorage
 ```
 
-Schema 与 Apps Script 配置见 `README.md`。
-
-Pull：
+Action 只接受 `store` operation。请求结构如下：
 
 ```json
 {
-  "operation": "pull",
-  "date": "24-07-26"
+  "operation": "store",
+  "entries": [
+    {
+      "Entry Type": "vocabulary",
+      "Entry Content": "example",
+      "Source Sentence": "This is an example.",
+      "Pronunciation": "UK /ɪɡˈzɑːm.pəl/; US /ɪɡˈzæm.pəl/",
+      "Source Context": "",
+      "Explanation": "Something used to illustrate an idea.",
+      "Optional Translation": "例子",
+      "Notes": ""
+    }
+  ]
 }
 ```
 
-Push：
+Action 不接收文件名、文件路径或序列化后的文件内容。GPT 只发送 canonical memory entries，文件命名、JSON 序列化、同小时合并和 Anki 重建均由后端处理。
+
+成功时，Action 返回当前 memory 文件和当天 Anki 文件的信息：
 
 ```json
 {
-  "operation": "push",
-  "files": [
+  "storedEntries": 1,
+  "saved": [
     {
-      "filename": "reading-memory-13-24-07-26.json",
-      "content": "[]"
+      "filename": "reading-memory-13-29-07-26.json",
+      "url": "https://drive.google.com/..."
+    },
+    {
+      "filename": "reading-anki-29-07-26.txt",
+      "url": "https://drive.google.com/..."
     }
   ]
 }

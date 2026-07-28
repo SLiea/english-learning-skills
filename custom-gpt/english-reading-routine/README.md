@@ -10,17 +10,15 @@ Add these files as reference files:
 standard-reading-procedure.md
 memory-formatter.md
 memory-schemas.md
-AnkiFormat.md
-anki_formatter.py
 ```
 
-Enable Data Analysis so the GPT can run `anki_formatter.py` in the sandbox.
-
-Configure one GPT Action named `readingMemoryStorage` for persistent memory storage.
+Configure one GPT Action named `readingMemoryStorage` for persistent memory storage and Anki file generation.
 
 ## Anki Memory Entry Usage
 
-Reading Routine constructs canonical memory entries first, then uses `anki_formatter.py` to convert same-day memory entries into an Anki import file.
+Reading Routine constructs canonical memory entries according to `memory-schemas.md`.
+
+The GPT sends the constructed entries to the `readingMemoryStorage` Action. The backend stores the entries as reading memory files and rebuilds the Anki import file from all memory entries of the same day.
 
 ### One-time Anki setup
 
@@ -54,11 +52,11 @@ Back:
 
 ### Daily usage
 
-1. Request memory entry construction and ask for Anki output.
-2. The GPT pulls the current day's existing memory files from persistent storage.
-3. The GPT creates a new `reading-memory-hh-dd-mm-yy.json` file for the current request.
-4. The GPT uses all same-day memory entry files in the sandbox to regenerate `reading-anki-dd-mm-yy.txt`.
-5. The GPT pushes generated output files back to persistent storage.
+1. Request memory entry construction.
+2. The GPT constructs canonical memory entries according to `memory-schemas.md`.
+3. The GPT sends the entries to the `readingMemoryStorage` Action.
+4. The backend stores or updates the current hour's `reading-memory-hh-dd-mm-yy.json` file.
+5. The backend loads all reading memory entries of the same day and rebuilds `reading-anki-dd-mm-yy.txt`.
 6. Import the generated `reading-anki-dd-mm-yy.txt` file in Anki Desktop.
 7. For normal additions, ignore duplicate notes to avoid modifying existing learning records.
 
@@ -76,7 +74,6 @@ Folder structure:
 <ROOT_FOLDER_ID>/
   sources/
   anki/
-  outputs/
 ```
 
 File routing:
@@ -84,10 +81,15 @@ File routing:
 ```text
 sources/reading-memory-hh-dd-mm-yy.json
 anki/reading-anki-dd-mm-yy.txt
-outputs/<other generated files>
 ```
 
+The backend uses UTC+8 time.
+
+Entries submitted within the same hour are merged into the same memory file. Every successful store operation rebuilds the Anki file from all memory files of the same day.
+
 ### Google Apps Script
+
+Use `Code.gs`.
 
 Create a Google Apps Script project and replace `YOUR_FOLDER_ID` with the Google Drive root folder ID.
 
@@ -98,116 +100,6 @@ Execute as: Me
 Who has access: Anyone
 ```
 
-After editing the script, deploy a new version.
-
-```javascript
-const ROOT_FOLDER_ID = "YOUR_FOLDER_ID";
-
-function doGet() {
-  return json_({ ok: true });
-}
-
-function doPost(e) {
-  const body = JSON.parse((e.postData && e.postData.contents) || "{}");
-
-  if (body.operation === "pull") {
-    return json_(pull_(body.date));
-  }
-
-  if (body.operation === "push") {
-    return json_(push_(body.files || []));
-  }
-
-  return json_({ error: "Unsupported operation" });
-}
-
-function pull_(date) {
-  const folder = subfolder_("sources");
-  const files = folder.getFiles();
-  const result = [];
-  const pattern = new RegExp("^reading-memory-\\d{2}-" + escape_(date) + "\\.json$");
-
-  while (files.hasNext()) {
-    const file = files.next();
-    const name = file.getName();
-
-    if (pattern.test(name)) {
-      result.push({
-        filename: name,
-        content: file.getBlob().getDataAsString("UTF-8")
-      });
-    }
-  }
-
-  return { files: result };
-}
-
-function push_(files) {
-  const saved = [];
-
-  files.forEach(item => {
-    const folder = targetFolder_(item.filename);
-    const file = upsert_(folder, item.filename, text_(item.content));
-
-    saved.push({
-      filename: file.getName(),
-      url: file.getUrl()
-    });
-  });
-
-  return { saved: saved };
-}
-
-function targetFolder_(filename) {
-  if (/^reading-memory-\d{2}-\d{2}-\d{2}-\d{2}\.json$/.test(filename)) {
-    return subfolder_("sources");
-  }
-
-  if (/^reading-anki-\d{2}-\d{2}-\d{2}\.txt$/.test(filename)) {
-    return subfolder_("anki");
-  }
-
-  return subfolder_("outputs");
-}
-
-function upsert_(folder, filename, content) {
-  const files = folder.getFilesByName(filename);
-
-  if (files.hasNext()) {
-    const file = files.next();
-    file.setContent(content);
-    return file;
-  }
-
-  return folder.createFile(filename, content, MimeType.PLAIN_TEXT);
-}
-
-function subfolder_(name) {
-  const root = DriveApp.getFolderById(ROOT_FOLDER_ID);
-  const folders = root.getFoldersByName(name);
-
-  if (folders.hasNext()) {
-    return folders.next();
-  }
-
-  return root.createFolder(name);
-}
-
-function text_(content) {
-  return typeof content === "string" ? content : JSON.stringify(content);
-}
-
-function json_(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function escape_(text) {
-  return String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-```
-
 Direct access to the deployed Web App URL should return:
 
 ```json
@@ -215,6 +107,8 @@ Direct access to the deployed Web App URL should return:
 ```
 
 ### GPT Action
+
+Use `OpenAISchema.txt`
 
 Authentication:
 
@@ -226,111 +120,50 @@ For a public GPT with actions, provide a valid privacy policy URL in the GPT con
 
 Replace `YOUR_DEPLOYMENT_ID` with the Apps Script deployment ID.
 
-```yaml
-openapi: 3.1.0
-info:
-  title: Reading Memory Storage
-  version: 0.1.0
-
-servers:
-  - url: https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID
-
-paths:
-  /exec:
-    post:
-      operationId: readingMemoryStorage
-      summary: Pull or push reading memory files.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - operation
-              properties:
-                operation:
-                  type: string
-                  enum:
-                    - pull
-                    - push
-                date:
-                  type: string
-                  description: Date in dd-mm-yy format. Required for pull.
-                files:
-                  type: array
-                  description: Files to push. Required for push.
-                  items:
-                    type: object
-                    required:
-                      - filename
-                      - content
-                    properties:
-                      filename:
-                        type: string
-                      content:
-                        type: string
-      responses:
-        "200":
-          description: Operation result.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ok:
-                    type: boolean
-                  files:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        filename:
-                          type: string
-                        content:
-                          type: string
-                  saved:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        filename:
-                          type: string
-                        url:
-                          type: string
-                  error:
-                    type: string
-```
-
 ### Action test
 
-PowerShell pull test:
+PowerShell test:
 
 ```powershell
 $Url = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"
 
 $Body = @{
-  operation = "pull"
-  date = "24-07-26"
-} | ConvertTo-Json
-
-Invoke-RestMethod -Uri $Url -Method Post -ContentType "application/json" -Body $Body
-```
-
-PowerShell push test:
-
-```powershell
-$Url = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"
-
-$Body = @{
-  operation = "push"
-  files = @(
+  operation = "store"
+  entries = @(
     @{
-      filename = "reading-memory-13-24-07-26.json"
-      content = "[]"
+      "Entry Type" = "vocabulary"
+      "Entry Content" = "example"
+      "Source Sentence" = "This is an example."
+      "Pronunciation" = "UK /ɪɡˈzɑːm.pəl/; US /ɪɡˈzæm.pəl/"
+      "Source Context" = ""
+      "Explanation" = "Something used to illustrate an idea."
+      "Optional Translation" = "例子"
+      "Notes" = ""
     }
   )
-} | ConvertTo-Json -Depth 5
+} | ConvertTo-Json -Depth 6
 
-Invoke-RestMethod -Uri $Url -Method Post -ContentType "application/json" -Body $Body
+Invoke-RestMethod `
+  -Uri $Url `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $Body
+```
+
+A successful response should contain the stored memory file and rebuilt Anki file:
+
+```powershell
+{
+  "storedEntries": 1,
+  "saved": [
+    {
+      "filename": "reading-memory-13-29-07-26.json",
+      "url": "https://drive.google.com/..."
+    },
+    {
+      "filename": "reading-anki-29-07-26.txt",
+      "url": "https://drive.google.com/..."
+    }
+  ]
+}
 ```

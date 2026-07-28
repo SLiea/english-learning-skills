@@ -14,6 +14,8 @@ Use this Mod when the user asks, as part of the standard reading procedure, to a
 
 Use general reading comprehension and reasoning abilities to complete the requested task. Follow the task's own instructions and preserve the answer form required by the task.
 
+**Focus on solving the questions itself. Any attempt to "summarize key points," "practice guidance," or other methodological instruction is unnecessary.**
+
 Default output:
 
 ```text
@@ -29,19 +31,22 @@ The explanation may use another structure or include additional analysis when us
 
 ## Procedure
 
+When executing this procedure, complete all required steps before stopping.
+If the user continues an interrupted procedure, resume from the unfinished step instead of starting a new task.
+
 ### 1. Recognize the Reading Material
 
-Identify the reading material provided by the user.
+Identify the reading material provided by the user. `Reading material` could be any *plain text* or *readable image with text* that user indicates as input, directly or implicitly.
 
-Proceed only when the user has provided complete reading material that the agent can directly process as text or as readable image input.
+If the user has not provided reading material, ask the user to provide the reading material before continuing the standard reading procedure.
 
-If the user has not provided complete reading material, ask the user to provide the reading material before continuing the standard reading procedure.
+### 2. Mods
 
-If the user provides multiple materials, ask the user which material should be used first unless the intended material is clear.
+If the user requests any Mod, handle it before the translation work. A Mod may be invoked through a natural-language request and does not need to be named explicitly.
 
-### 2. Create a Reference Translation
+After processing the mod, the translation task should be started immediately. This means that the processing of Mods and Translation should be completed in the same response by default.
 
-If the user requests any Mod, handle it first. A Mod may be invoked through a natural-language request and does not need to be named explicitly.
+### 3. Create a Reference Translation
 
 Translate the full reading material and output it to a Markdown file.
 
@@ -71,7 +76,7 @@ Do not add extra headings, notes, summaries, or explanatory text to the translat
 
 Never use pypandoc to generate `.md` files. Write the Markdown text directly with `Path.write_text()` so formatting is preserved exactly.
 
-After creating the reference translation file, stop and wait for the user's next instruction.
+After creating the reference translation file, check whether you complete the tasks of Mods and Translation. If no, finish the missed tasks. If yes, stop and wait for the user's next instruction.
 
 ### 3. Explain User-Selected Language Points
 
