@@ -127,8 +127,9 @@ PowerShell test:
 ```powershell
 $Url = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"
 
-$Body = @(
-  @{
+$Body = @{
+  entries = @(
+    @{
       "Entry Type" = "vocabulary"
       "Entry Content" = "example"
       "Source Sentence" = "This is an example."
@@ -137,8 +138,9 @@ $Body = @(
       "Explanation" = "Something used to illustrate an idea."
       "Optional Translation" = "例子"
       "Notes" = ""
-  }
-) | ConvertTo-Json -Depth 6
+    }
+  )
+} | ConvertTo-Json -Depth 6
 
 Invoke-RestMethod `
   -Uri $Url `

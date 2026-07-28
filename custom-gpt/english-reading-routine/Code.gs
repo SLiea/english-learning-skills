@@ -1,4 +1,5 @@
 const ROOT_FOLDER_ID = "folderid";
+
 const TIME_ZONE = "Asia/Shanghai";
 const DECK = "TOEFL2026";
 const NOTE_TYPE = "Reading Memory";
@@ -8,13 +9,17 @@ function doGet() {
 }
 
 function doPost(e) {
-  const body = JSON.parse((e.postData && e.postData.contents) || "{}");
+  try {
+    const body = JSON.parse(
+      (e.postData && e.postData.contents) || "{}"
+    );
 
-  if (body.operation === "store") {
     return json_(store_(body.entries));
+  } catch (error) {
+    return json_({
+      error: String(error.message || error)
+    });
   }
-
-  return json_({ error: "Unsupported operation" });
 }
 
 function store_(entries) {

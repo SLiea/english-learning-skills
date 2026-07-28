@@ -3,7 +3,7 @@ info:
   title: Reading Memory Storage
   version: 0.1.0
 servers:
-  - url: 《》
+  - url: <YOUR_DEPLOYMENT_ID>
 
 paths:
   /exec:
