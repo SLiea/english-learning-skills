@@ -41,6 +41,9 @@ paths:
                       Entry Content:
                         type: string
 
+                      Import Key:
+                        type: string
+
                       Source Sentence:
                         type: string
 

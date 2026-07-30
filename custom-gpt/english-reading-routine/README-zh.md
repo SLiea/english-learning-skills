@@ -67,6 +67,18 @@ Back:
 
 新 entries 将作为新 cards 加入，并遵循现有 deck 的调度规则。
 
+### 修订已有 Anki note
+
+1. 在 Anki 中找到需要修订的 note，并取得其现有 `Import Key`。
+2. 重新构造符合预期的 canonical memory entry。
+3. 在修订后的 entry 中原样填写现有 `Import Key`。
+4. 通过普通的 `readingMemoryStorage` Action 上传修订后的 entry。
+5. 导入生成的 `reading-anki-dd-mm-yy.txt`，并选择根据第一字段更新已有 notes。
+
+修订后的 entry 会作为较晚的 memory source 记录保存，不需要修改较早的错误 source。按照时间顺序导入生成的 Anki 文件时，较晚的 entry 会通过不变的 `Import Key` 更新已有 note。
+
+普通新 entry 不应提供 `Import Key`；后端会在首次保存时自动生成并保存该字段。
+
 ## Persistent Memory Storage 配置
 
 ### Google Drive

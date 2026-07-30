@@ -62,6 +62,18 @@ Back:
 
 New entries are added as new cards and follow the existing deck's scheduling rules.
 
+### Revising an Existing Anki Note
+
+1. Find the note in Anki and obtain its existing `Import Key`.
+2. Reconstruct the corrected canonical memory entry.
+3. Include the existing `Import Key` unchanged in the corrected entry.
+4. Send the corrected entry through the normal `readingMemoryStorage` Action.
+5. Import the generated `reading-anki-dd-mm-yy.txt` file using the option to update existing notes whose first field matches.
+
+The corrected entry is stored as a later memory source record. The earlier source record does not need to be edited. When the generated Anki files are imported in chronological order, the later entry updates the existing Anki note through the unchanged `Import Key`.
+
+For ordinary new entries, do not provide an `Import Key`; the backend assigns one when storing the entry.
+
 ## Persistent Memory Storage Setup
 
 ### Google Drive

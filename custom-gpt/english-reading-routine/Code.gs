@@ -43,10 +43,12 @@ function store_(entries) {
 
     const sourceFolder = subfolder_("sources");
 
+    const preparedEntries = entries.map(prepareEntry_);
+
     const mergedEntries = mergeIntoMemoryFile_(
       sourceFolder,
       memoryFilename,
-      entries
+      preparedEntries
     );
 
     const allEntries = loadEntries_(date);
@@ -79,6 +81,48 @@ function store_(entries) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function prepareEntry_(entry) {
+  const prepared = Object.assign({}, entry);
+
+  if (!clean_(prepared["Import Key"])) {
+    const importKey = defaultImportKey_(prepared);
+
+    if (importKey) {
+      prepared["Import Key"] = importKey;
+    }
+  }
+
+  return prepared;
+}
+
+function defaultImportKey_(entry) {
+  const type = clean_(entry["Entry Type"]);
+
+  if (
+    type === "vocabulary" ||
+    type === "expression"
+  ) {
+    return [
+      clean_(entry["Entry Content"]),
+      clean_(entry["Source Sentence"])
+    ].join("::");
+  }
+
+  const valueFields = entry["Value Fields"] || [];
+
+  if (
+    (
+      type === "sentence" ||
+      type === "paragraph"
+    ) &&
+    valueFields.indexOf("grammar") !== -1
+  ) {
+    return clean_(entry["Grammar"]);
+  }
+
+  return "";
 }
 
 function loadEntries_(date) {
@@ -137,7 +181,7 @@ function mergeIntoMemoryFile_(folder, filename, newEntries) {
         );
       }
 
-      existingEntries = parsed;
+      existingEntries = parsed.map(prepareEntry_);
     }
   }
 
@@ -189,6 +233,12 @@ function mergeEntries_(existingEntries, newEntries) {
 }
 
 function entryKey_(entry) {
+  const importKey = clean_(entry["Import Key"]);
+
+  if (importKey) {
+    return importKey;
+  }
+  
   const type = clean_(entry["Entry Type"]);
 
   if (
@@ -253,7 +303,7 @@ function convertEntry_(entry) {
   ) {
     const content = clean_(entry["Entry Content"]);
     const source = clean_(entry["Source Sentence"]);
-
+    const importKey = clean_(entry["Import Key"]) || defaultImportKey_(entry);
     const frontFields =
       entryType === "vocabulary"
         ? [
@@ -280,7 +330,7 @@ function convertEntry_(entry) {
       .join("");
 
     return [
-      content + "::" + source,
+      importKey,
       entryType,
       front,
       back
@@ -297,7 +347,7 @@ function convertEntry_(entry) {
     valueFields.indexOf("grammar") !== -1
   ) {
     const grammar = clean_(entry["Grammar"]);
-
+    const importKey = clean_(entry["Import Key"]) || defaultImportKey_(entry);
     const back = [
       "Custom Note",
       "Source"
@@ -306,7 +356,7 @@ function convertEntry_(entry) {
       .join("");
 
     return [
-      grammar,
+      importKey,
       "grammar",
       grammar,
       back
