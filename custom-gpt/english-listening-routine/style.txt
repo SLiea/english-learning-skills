@@ -1,0 +1,192 @@
+<div class="listening-card back">
+
+  <div class="source-area">
+    <div class="back-audio">
+      {{Audio}}
+    </div>
+
+    <div class="source-sentence">
+      {{Source Sentence}}
+    </div>
+  </div>
+
+  {{#Translation}}
+  <div class="translation">
+    {{Translation}}
+  </div>
+  {{/Translation}}
+
+  <div class="divider"></div>
+
+  <div class="focus">
+    {{Focus}}
+  </div>
+
+  {{#Notes}}
+  <div class="notes">
+    {{Notes}}
+  </div>
+  {{/Notes}}
+
+</div>
+
+
+
+.card {
+  font-family:
+    "Segoe UI Variable",
+    "Segoe UI",
+    "Microsoft YaHei UI",
+    "Microsoft YaHei",
+    sans-serif;
+
+  background-color: #292929;
+  color: #f3f3f3;
+
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+.listening-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 44px 52px 52px;
+  box-sizing: border-box;
+}
+
+
+/* ---------- Front ---------- */
+
+.front {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.front-audio {
+  text-align: center;
+}
+
+
+/* ---------- Source Sentence ---------- */
+
+.source-area {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: start;
+}
+
+.back-audio {
+  padding-top: 4px;
+}
+
+.source-sentence {
+  min-width: 0;
+
+  font-size: 30px;
+  line-height: 1.5;
+  font-weight: 450;
+  letter-spacing: 0.01em;
+}
+
+
+/* ---------- Translation ---------- */
+
+.translation {
+  margin-top: 18px;
+  margin-left: 54px;
+
+  font-family:
+    "Microsoft YaHei UI",
+    "Microsoft YaHei",
+    "PingFang SC",
+    sans-serif;
+
+  font-size: 22px;
+  line-height: 1.65;
+  color: #c9c9c9;
+}
+
+
+/* ---------- Divider ---------- */
+
+.divider {
+  margin: 32px 0 26px;
+  border-top: 1px solid #555;
+}
+
+
+/* ---------- Focus ---------- */
+
+.focus {
+  margin-top: 4px;
+  padding: 16px 20px;
+
+  font-size: 24px;
+  line-height: 1.6;
+  font-weight: 600;
+  text-align: left;
+
+  background: #343434;
+  border-radius: 10px;
+}
+
+
+/* ---------- Notes ---------- */
+
+.notes {
+  margin-top: 26px;
+  padding-top: 20px;
+
+  font-size: 20px;
+  line-height: 1.65;
+  color: #bdbdbd;
+
+  border-top: 1px solid #444;
+}
+
+
+/* ---------- Audio Button ---------- */
+
+.replay-button {
+  margin: 0 !important;
+}
+
+.replay-button svg {
+  width: 32px;
+  height: 32px;
+}
+
+
+/* ---------- Smaller Screens ---------- */
+
+@media (max-width: 700px) {
+  .listening-card {
+    padding: 30px 26px 38px;
+  }
+
+  .source-area {
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 12px;
+  }
+
+  .source-sentence {
+    font-size: 26px;
+  }
+
+  .translation {
+    margin-left: 46px;
+    font-size: 20px;
+  }
+
+  .focus {
+    font-size: 22px;
+  }
+
+  .notes {
+    font-size: 18px;
+  }
+}

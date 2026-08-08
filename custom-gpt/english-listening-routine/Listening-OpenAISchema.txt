@@ -1,0 +1,71 @@
+openapi: 3.1.0
+info:
+  title: Listening Memory Storage
+  version: 0.1.0
+
+servers:
+  - url: <YOUR_WEB_APP_BASE_URL>
+
+paths:
+  /exec:
+    post:
+      operationId: listeningMemoryStorage
+      summary: Store listening memory entries and rebuild the daily Anki file.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - entries
+              properties:
+                entries:
+                  type: array
+                  minItems: 1
+                  description: Canonical Listening Memory entries.
+                  items:
+                    type: object
+                    required:
+                      - Source Sentence
+                      - Focus
+                    properties:
+                      Source Sentence:
+                        type: string
+
+                      Focus:
+                        type: array
+                        minItems: 1
+                        items:
+                          type: string
+
+                      Translation:
+                        type: string
+
+                      Notes:
+                        type: string
+
+      responses:
+        "200":
+          description: Storage result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  storedEntries:
+                    type: integer
+
+                  saved:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        filename:
+                          type: string
+                        url:
+                          type: string
+
+                  error:
+                    type: string
