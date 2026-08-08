@@ -1,3 +1,11 @@
+<div class="listening-card front">
+  <div class="front-audio">
+    {{Audio}}
+  </div>
+</div>
+
+
+
 <div class="listening-card back">
 
   <div class="source-area">
