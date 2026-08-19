@@ -8,26 +8,33 @@ Process user-annotated listening transcripts into sentence-level listening memor
 
 The user may provide text or images containing text derived from a listening transcript.
 
-Extract the complete English transcript and create a Markdown file containing:
+Extract the complete English transcript and create a separate Markdown file containing a reference Chinese translation.
 
-1. the complete English transcript;
-2. a reference Chinese translation.
+The Chinese translation must preserve a one-to-one correspondence with the English sentence units.
 
-Place the Chinese translation directly after the corresponding English paragraph.
-
-After creating the reference transcript, stop and wait for the user to annotate it.
+After creating the reference translation, stop and wait for the user to annotate the transcript.
 
 ### 2. User Annotation & Construct Memory Entries
 
-The user marks each listening focus in the English transcript with:
+After the user provides the annotated transcript, use the local `listening_memory_entries.py` script with:
 
-`**...**`
+- the annotated transcript;
+- the reference Chinese translation created in Step 1.
 
-A sentence may contain multiple focuses.
+Command format:
 
-Each sentence containing at least one focus is one object to be processed and forms one Listening Memory entry.
+```bash
+python listening_memory_entries.py \
+  "<annotated_transcript.md>" \
+  "<reference_translation.md>" \
+  -o "<entries.json>"
+```
 
-For each object, construct one entry using the defined schema.
+Use the script output as the Listening Memory entries.
+
+---
+
+Review the generated entries before storage. If there is an obvious issue that may materially affect the correctness of the stored Listening Memory data, report it to the user instead of submitting the affected entries.
 
 ## Entry Schema
 
